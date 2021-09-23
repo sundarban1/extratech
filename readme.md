@@ -13,8 +13,8 @@ Express and MySQL Application
 On the command prompt run the following commands:
 
 ``` 
- $ git clone https://github.com/Bikranshu/mome-web-app.git
- $ cd mome-web-app
+ $ git clone git@github.com:sundarban1/extratech.git
+ $ cd extratech
  $ cp .env.example .env (edit it with your secret key and database information)
  $ npm install
  $ npm run migrate
