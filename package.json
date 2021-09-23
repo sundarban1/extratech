@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bikranshu/mome-web-app.git"
+    "url": "git@github.com:sundarban1/extratech.git"
   },
   "keywords": [
     "javascript",
@@ -24,7 +24,7 @@
     "express",
     "webpack"
   ],
-  "author": "Krishna Timilsina <bikranshu.t@gmail.com>",
+  "author": "Sundar Ban <sundarban007@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@hapi/boom": "^9.1.0",
