@@ -38,10 +38,16 @@ export function findById(req, res, next) {
  * @param {Function} next
  */
 export function store(req, res, next) {
+ try {
   userService
     .storeUser(req.body)
-    .then((data) => res.status(HttpStatus.CREATED).json({ data }))
+    .then((data) => res.status(200).json({ data }))
     .catch((err) => next(err));
+ }
+ catch (error){
+   console.log(error);
+ }
+
 }
 
 /**
@@ -71,3 +77,10 @@ export function destroy(req, res, next) {
     .then((data) => res.status(HttpStatus.NO_CONTENT).json({ data }))
     .catch((err) => next(err));
 }
+
+export function register(req, res, next){
+
+  res.json({'data':req.body});
+
+}
+

@@ -120,4 +120,5 @@ router.route('/confirmation')
   .get((req, res) => {
     authCtrl.accountConfirmation(req, res);
   });
+
 export default router;
