@@ -34,8 +34,9 @@ export function getUser(id) {
  * @returns {Promise}
  */
 export function storeUser(user) {
+
   // eslint-disable-next-line camelcase
-  const { first_name, middle_name, last_name, email } = user;
+  const { first_name, middle_name, last_name, email, phone, address} = user;
   const password = bcrypt.hashSync(user.password, 10);
 
   return new User({
@@ -44,6 +45,8 @@ export function storeUser(user) {
     last_name,
     email,
     password,
+    phone,
+    address
   }).save();
 }
 

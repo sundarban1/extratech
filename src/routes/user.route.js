@@ -100,6 +100,7 @@ router
    */
 
   .post(validate(userSchema.store), userCtrl.store)
+  
 
   /**
    * @swagger
@@ -224,5 +225,8 @@ router
    */
 
   .delete(isAuthenticated, userCtrl.destroy);
+
+  
+
 
 export default router;
