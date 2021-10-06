@@ -6,6 +6,8 @@ import userSchema from '../validators/user.validator';
 
 const router = express.Router();
 
+
+
 /**
  * @swagger
  * tags:

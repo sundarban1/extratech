@@ -1,12 +1,14 @@
 import HttpStatus from 'http-status-codes';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt, { hash } from 'bcrypt';
 
 import Customer from '../models/customer.model';
 import logger from '../config/winston';
 import * as CustomerService from '../services/customer.service';
 import path from "path";
 import Constant from "../utils/constants";
+import { rest, result } from 'lodash';
+import User from '../models/user.model';
 
 
 /**
@@ -73,4 +75,49 @@ export function accountConfirmation(req,res,next){
     })
     .catch((err) => console.log(err));
 
+}
+
+export function validate(req,res,next){
+  res.json({"key":"value"});
+}
+
+export function nitin(req,res,next){
+  res.json({"name":"Ramesh","id" :req.query.id, "token":req.query.token});
+}
+
+export function postreq(req,res,next) {
+  res.send('Hello this is a successful post request.');
+}
+
+export function createAccount(req,res,next) {
+  res.json({"result":"success"});
+  bcrypt.hash(req.body.password, 10, (err, hash) => {
+    if(err) {
+      return res.status(500).json({
+        error: err
+      });
+    } else {
+      const user= new User({
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        email: req.body.email,
+        password: hash,
+        dob: req.body.dob
+      });
+      user
+      .save()
+      .then(result => {
+        console.log(result);
+        res.status(201).json({
+          message:"User created"
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({
+          error: err
+        });
+      });
+    }
+  });
 }

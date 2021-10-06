@@ -10,6 +10,15 @@ export default {
     phone_number: Joi.string().min(6).required(),
   }),
 
+  signup: Joi.object({
+    first_name: Joi.string().required(),
+    middle_name: Joi.string(),
+    last_name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+    phone_number: Joi.string().min(6).required(),
+  }),
+
   update: Joi.object({
     first_name: Joi.string().required(),
     last_name: Joi.string().required(),
