@@ -47,7 +47,12 @@ export function storeUser(user) {
     password,
     phone,
     address
-  }).save();
+  }).save()
+  .catch(function(err){
+    if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+      throw Boom.badRequest(err.sqlMessage)
+    }
+  });
 }
 
 /**
