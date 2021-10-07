@@ -24,7 +24,7 @@
     "express",
     "webpack"
   ],
-  "author": "Sundar Ban <sundarban007@gmail.com>",
+  "author": "Nitin Shrestha <shresthanitin94@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@hapi/boom": "^9.1.0",

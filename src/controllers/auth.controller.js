@@ -24,7 +24,7 @@ export function login(req, res) {
   Customer.query({ where: { email: email } })
     .fetch({ require: true })
     .then((user) => {
-      if (bcrypt.compareSync(password, user.get('password')) && user.get('is_verified') === 1 && user.get('status') === Constant.users.status.active ) {
+      if (bcrypt.compareSync(password, user.get('password')) && user.get('is_verified') === 1){
         const token = jwt.sign(
           {
             id: user.get('id'),
