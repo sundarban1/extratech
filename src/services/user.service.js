@@ -64,14 +64,16 @@ export function storeUser(user) {
  */
 export function updateUser(id, user) {
   // eslint-disable-next-line camelcase
-  const { first_name, last_name, email, status } = user;
+  const { first_name, middle_name, last_name, email, phone, address} = user;
 
   return new User({ id })
     .save({
-      first_name: first_name,
-      last_name: last_name,
-      email: email,
-      status: status,
+      first_name,
+      middle_name,
+      last_name,
+      email,
+      phone,
+      address
     })
     .catch(User.NoRowsUpdatedError, () => {
       throw Boom.notFound('User not found.');
@@ -92,3 +94,6 @@ export function deleteUser(id) {
       throw Boom.notFound('User not found.');
     });
 }
+
+
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJyYW1lc0BnbWFpbC5jb20iLCJpYXQiOjE2MzM1OTQ5OTl9.EqsGnTn7z8JMyfEC8hqifzJ3F-K-5JKAX0RqpbPWq9s
