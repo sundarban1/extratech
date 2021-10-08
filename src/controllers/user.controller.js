@@ -39,6 +39,7 @@ export function findById(req, res, next) {
  */
 export function store(req, res, next) {
  try {
+
   userService
     .storeUser(req.body)
     .then((data) => res.status(200).json({ data }))
@@ -58,10 +59,15 @@ export function store(req, res, next) {
  * @param {Function} next
  */
 export function update(req, res, next) {
+
+  try {
   userService
     .updateUser(req.params.id, req.body)
     .then((data) => res.json({ data }))
     .catch((err) => next(err));
+  }catch(error){
+    console.log(error);
+  }
 }
 
 /**

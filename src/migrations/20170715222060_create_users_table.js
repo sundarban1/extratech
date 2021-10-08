@@ -26,6 +26,8 @@ exports.up = function (knex) {
   });
 };
 
+//first_name , middle_name, last_name, email, phone, dob, password 
+
 /**
  * Drop users table.
  *

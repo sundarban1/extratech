@@ -1,13 +1,16 @@
 import HttpStatus from 'http-status-codes';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt, { hash } from 'bcrypt';
 
 import Customer from '../models/customer.model';
 import logger from '../config/winston';
 import * as CustomerService from '../services/customer.service';
 import path from "path";
 import Constant from "../utils/constants";
+import { rest, result } from 'lodash';
 import exp from 'constants';
+import User from '../models/user.model';
+import { exit } from 'process';
 
 
 /**
@@ -18,11 +21,14 @@ import exp from 'constants';
  * @returns {*}
  */
 export function login(req, res) {
+
   const { email, password } = req.body;
-  Customer.query({ where: { email: email } })
+
+  User.query({ where: { email: email } })
     .fetch({ require: true })
     .then((user) => {
-      if (bcrypt.compareSync(password, user.get('password')) && user.get('is_verified') === 1 && user.get('status') === Constant.users.status.active ) {
+
+      if (bcrypt.compareSync(password, user.get('password')) ) {
         const token = jwt.sign(
           {
             id: user.get('id'),
@@ -48,7 +54,7 @@ export function login(req, res) {
     .catch(Customer.NotFoundError, () =>
       res.status(404).json({
         success: false,
-        message: 'Customer not found.',
+        message: 'User not found.',
       })
     );
 }
@@ -74,4 +80,21 @@ export function accountConfirmation(req,res,next){
     })
     .catch((err) => console.log(err));
 
+}
+
+export function validate(req,res,next){
+  res.json({"key":"value"});
+}
+
+export function nitin(req,res,next){
+  res.json({"name":"Ramesh","id" :req.query.id, "token":req.query.token});
+}
+
+export function postreq(req,res,next) {
+  res.send('Hello this is a successful post request.');
+}
+
+export function createAccount(req,res,next) {
+  res.json({"result":"success"});
+  
 }
