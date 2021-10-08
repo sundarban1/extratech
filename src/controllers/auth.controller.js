@@ -8,7 +8,6 @@ import * as CustomerService from '../services/customer.service';
 import path from "path";
 import Constant from "../utils/constants";
 import { rest, result } from 'lodash';
-import User from '../models/user.model';
 import exp from 'constants';
 import User from '../models/user.model';
 import { exit } from 'process';

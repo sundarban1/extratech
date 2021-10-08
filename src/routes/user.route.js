@@ -201,7 +201,7 @@ router
 
   /**
    * @swagger
-   * /users/{id}:Joi.string()
+   * /users/{id}:
    *   delete:
    *     tags:
    *       - users

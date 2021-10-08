@@ -45,7 +45,7 @@ export function storeUser(user) {
     last_name,
     email,
     password,
-    contact_no,
+    phone,
     address
   }).save()
   .catch(function(err){
