@@ -1,6 +1,7 @@
 import HttpStatus from 'http-status-codes';
 
 import * as userService from '../services/user.service';
+import {notify} from '../config/mailer';
 
 /**
  * Find all the users
@@ -41,7 +42,19 @@ export function store(req, res, next) {
  try {
   userService
     .storeUser(req.body)
-    .then((data) => res.status(200).json({ data }))
+    .then((data) => {
+
+      const param = data.attributes;
+      param.template = 'welcome';
+     // param.confirmationUrl = CustomerService.generateConfirmationUrl(param.remember_token);
+      param.confirmationUrl = 'www.google.com/some/token';
+
+
+      notify(param);
+     
+      res.status(200).json({ data })
+  
+  })
     .catch((err) => next(err));
  }
  catch (error){
