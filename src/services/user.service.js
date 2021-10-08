@@ -75,6 +75,12 @@ export function updateUser(id, user) {
       phone,
       address
     })
+    .catch(function(err){
+      if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+        throw Boom.badRequest(err.sqlMessage)
+      }
+    })
+
     .catch(User.NoRowsUpdatedError, () => {
       throw Boom.notFound('User not found.');
     });
