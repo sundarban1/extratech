@@ -38,6 +38,7 @@ export function storeUser(user) {
   // eslint-disable-next-line camelcase
   const { first_name, middle_name, last_name, email, phone, address} = user;
   const password = bcrypt.hashSync(user.password, 10);
+  const token = bcrypt.hashSync('token', 10);
 
   return new User({
     first_name,
@@ -46,7 +47,8 @@ export function storeUser(user) {
     email,
     password,
     phone,
-    address
+    address,
+    token
   }).save();
 }
 

@@ -130,7 +130,7 @@ export function getCustomerByPhone(phone) {
  * @returns {string}
  */
 export function generateConfirmationUrl(token){
-  return `${process.env.APP_HOST}/api/auths/confirmation?token=${token}`;
+  return `http://${process.env.APP_HOST}/api/auths/confirmation?token=${token}`;
 }
 
 function confirmationToken(email){

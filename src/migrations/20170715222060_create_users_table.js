@@ -20,6 +20,7 @@ exports.up = function (knex) {
     table.string('total_sent').defaultTo(0);
     table.string('total_recieve').defaultTo(0);
     table.string('status').notNullable().defaultTo(0);
+    table.string('token').notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
     //table.timestamp('updated_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').nullable();

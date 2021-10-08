@@ -2,6 +2,7 @@ import HttpStatus from 'http-status-codes';
 
 import * as userService from '../services/user.service';
 import {notify} from '../config/mailer';
+import * as CustomerService from '../services/customer.service';
 
 /**
  * Find all the users
@@ -46,8 +47,7 @@ export function store(req, res, next) {
 
       const param = data.attributes;
       param.template = 'welcome';
-     // param.confirmationUrl = CustomerService.generateConfirmationUrl(param.remember_token);
-      param.confirmationUrl = 'www.google.com/some/token';
+      param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
 
 
       notify(param);
