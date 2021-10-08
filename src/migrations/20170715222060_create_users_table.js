@@ -15,7 +15,7 @@ exports.up = function (knex) {
     table.string('address').notNullable();
     table.string('password').notNullable();
     table.string('phone').notNullable().unique('cus_phone');
-    table.timestamp('dob').notNullable();
+    table.timestamp('dob').notNullable().defaultTo(knex.fn.now());
     table.string('amount').defaultTo(0);
     table.string('total_sent').defaultTo(0);
     table.string('total_recieve').defaultTo(0);
