@@ -1,11 +1,11 @@
 import bookshelf from '../config/bookshelf';
 
-const TABLE_NAME = 'users';
+const TABLE_NAME = 'banks';
 
 /**
- * User model.
+ * Bank model.
  */
-class User extends bookshelf.Model {
+class Bank extends bookshelf.Model {
   /**
    * Get table name.
    */
@@ -21,4 +21,4 @@ class User extends bookshelf.Model {
   }
 }
 
-export default User;
+export default Bank;

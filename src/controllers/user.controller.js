@@ -63,7 +63,7 @@ export function accountConfirmation(req, res, next) {
   const data = req.attributes;
 
   userService
-    .verifyAccount(data)
+    .verifyAccount(token)
     .then((data) => {
       if (undefined === data) {
         res.sendFile(path.join(__dirname, '../../public/customer/link_expired.html'));

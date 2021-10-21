@@ -9,7 +9,7 @@ import jsonHandler from './middlewares/jsonHandler';
 
 // Swagger API documentation
 app.get('/swagger.json', (req, res) => {
-   res.json(swagger);
+  res.json(swagger);
 });
 
 // Request logger
@@ -35,7 +35,7 @@ app.use(errorHandler.notFound);
 app.use(errorHandler.methodNotAllowed);
 
 app.listen(app.get('port'), app.get('host'), () => {
-    console.log(`Server running at http://${app.get('host')}:${app.get('port')}`);
+  console.log(`Server running at http://${app.get('host')}:${app.get('port')}`);
 });
 
 export default app;
