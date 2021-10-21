@@ -199,7 +199,7 @@ router
 
   /**
    * @swagger
-   * /users/{id}:
+   * /users/:id
    *   delete:
    *     tags:
    *       - users
