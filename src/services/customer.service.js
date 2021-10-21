@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import Constant from '../utils/constants';
 
 import Customer from '../models/customer.model';
-import Address from "../models/address.model";
+import Address from '../models/address.model';
 
 /**
  * Get all customers.
@@ -92,7 +92,6 @@ export function deleteCustomer(id) {
     });
 }
 
-
 /**
  * Get a customer.
  *
@@ -100,7 +99,7 @@ export function deleteCustomer(id) {
  * @returns {Promise}
  */
 export function getCustomerByEmail(email) {
-  return new Customer({ 'email':email })
+  return new Customer({ email: email })
     .fetch({ require: false })
     .then((user) => user)
     .catch(Customer.NotFoundError, () => {
@@ -115,7 +114,7 @@ export function getCustomerByEmail(email) {
  * @returns {Promise}
  */
 export function getCustomerByPhone(phone) {
-  return new Customer({ 'phone':phone })
+  return new Customer({ phone: phone })
     .fetch({ require: false })
     .then((user) => user)
     .catch(Customer.NotFoundError, () => {
@@ -129,13 +128,14 @@ export function getCustomerByPhone(phone) {
  * @param   {String}  token
  * @returns {string}
  */
-export function generateConfirmationUrl(token){
+export function generateConfirmationUrl(token) {
   return `http://${process.env.APP_HOST}/api/auths/confirmation?token=${token}`;
 }
 
-function confirmationToken(email){
-  return jwt.sign({
-      email: email
+function confirmationToken(email) {
+  return jwt.sign(
+    {
+      email: email,
     },
     process.env.TOKEN_SECRET_KEY
   );
@@ -152,24 +152,21 @@ export function verifyAccount(token) {
     .fetch({ require: false })
     .then((user) => {
       if (user !== null) {
-
         const id = user.attributes.id;
 
-        return new Customer({ id })
-          .save({
-            'is_verified': 1,
-            'status': Constant.users.status.active,
-            'remember_token': null
-          });
-      }
-      else {
+        return new Customer({ id }).save({
+          is_verified: 1,
+          status: Constant.users.status.active,
+          remember_token: null,
+        });
+      } else {
         user = null;
       }
     })
     .catch(Customer.NotFoundError, () => {
       throw Boom.notFound('Customer not found.');
     });
-/*
+  /*
 
 // check with this code why not working, directly update by token
 
@@ -183,5 +180,4 @@ export function verifyAccount(token) {
       throw Boom.notFound("Customer not found.");
     });
 */
-
 }

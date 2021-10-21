@@ -7,6 +7,7 @@ import User from '../models/user.model';
 
 import logger from '../config/winston';
 import * as CustomerService from '../services/customer.service';
+import * as UserService from '../services/user.service';
 import path from 'path';
 import Constant from '../utils/constants';
 import exp from 'constants';
@@ -26,10 +27,10 @@ export function login(req, res) {
       .then((user) => {
         console.log(user);
         if (
-          bcrypt.compareSync(password, user.get('password'))
-          // user.get('is_verified') === 1 &&
+          bcrypt.compareSync(password, user.get('password')) &&
+          user.get('is_verified') === 1 &&
           // user.get('status') === Constant.users.status.active
-          // user.get('status') === 1
+          user.get('status') === 1
         ) {
           const token = jwt.sign(
             {
@@ -44,11 +45,11 @@ export function login(req, res) {
             token,
             email: user.get('email'),
           });
-          // } else if ('status' !== 1 && 'is_verified' !== 1) {
-          //   res.status(404).json({
-          //     success: false,
-          //     message: 'User is not activated or User is not varified',
-          //   });
+        } else if ('status' !== 1 && 'is_verified' !== 1) {
+          res.status(404).json({
+            success: false,
+            message: 'User is not activated or User is not varified',
+          });
         } else {
           logger.log('error', 'Authentication failed. Invalid password.');
 
@@ -80,7 +81,7 @@ export function login(req, res) {
 export function accountConfirmation(req, res, next) {
   const { token } = req.query;
 
-  CustomerService.verifyAccount(token)
+  UserService.verifyAccount(token)
     .then((data) => {
       if (undefined === data) {
         res.sendFile(path.join(__dirname, '../../public/customer/link_expired.html'));

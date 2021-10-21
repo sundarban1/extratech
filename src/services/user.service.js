@@ -89,14 +89,14 @@ export function deleteUser(id) {
     });
 }
 
-export function verifyAccount(data) {
-  return new User({ email: email })
+export function verifyAccount(token) {
+  return new User({ token: token })
     .fetch({ require: false })
     .then((user) => {
       if (user !== null) {
-        const id = user.attributes.email;
+        const id = user.attributes.id;
 
-        return new User({ email }).save({
+        return new User({ id }).save({
           // is_verified: 1,
           status: 1,
           // remember_token: null,
