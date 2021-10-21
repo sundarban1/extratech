@@ -3,12 +3,13 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 import Customer from '../models/customer.model';
+import User from '../models/user.model';
+
 import logger from '../config/winston';
 import * as CustomerService from '../services/customer.service';
-import path from "path";
-import Constant from "../utils/constants";
+import path from 'path';
+import Constant from '../utils/constants';
 import exp from 'constants';
-
 
 /**
  * Returns jwt token if valid email and password is provided
@@ -19,38 +20,53 @@ import exp from 'constants';
  */
 export function login(req, res) {
   const { email, password } = req.body;
-  Customer.query({ where: { email: email } })
-    .fetch({ require: true })
-    .then((user) => {
-      if (bcrypt.compareSync(password, user.get('password')) && user.get('is_verified') === 1 && user.get('status') === Constant.users.status.active ) {
-        const token = jwt.sign(
-          {
-            id: user.get('id'),
+  try {
+    User.query({ where: { email: email } })
+      .fetch({ require: true })
+      .then((user) => {
+        console.log(user);
+        if (
+          bcrypt.compareSync(password, user.get('password'))
+          // user.get('is_verified') === 1 &&
+          // user.get('status') === Constant.users.status.active
+          // user.get('status') === 1
+        ) {
+          const token = jwt.sign(
+            {
+              id: user.get('id'),
+              email: user.get('email'),
+            },
+            process.env.TOKEN_SECRET_KEY
+          );
+
+          res.json({
+            success: true,
+            token,
             email: user.get('email'),
-          },
-          process.env.TOKEN_SECRET_KEY
-        );
+          });
+          // } else if ('status' !== 1 && 'is_verified' !== 1) {
+          //   res.status(404).json({
+          //     success: false,
+          //     message: 'User is not activated or User is not varified',
+          //   });
+        } else {
+          logger.log('error', 'Authentication failed. Invalid password.');
 
-        res.json({
-          success: true,
-          token,
-          email: user.get('email'),
-        });
-      } else {
-        logger.log('error', 'Authentication failed. Invalid password.');
-
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: 'Invalid username or password.',
-        });
-      }
-    })
-    .catch(Customer.NotFoundError, () =>
-      res.status(404).json({
-        success: false,
-        message: 'Customer not found.',
+          res.status(HttpStatus.UNAUTHORIZED).json({
+            success: false,
+            message: 'Invalid username or password.',
+          });
+        }
       })
-    );
+      .catch(User.NotFoundError, () =>
+        res.status(404).json({
+          success: false,
+          message: 'User not found.',
+        })
+      );
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 /**
@@ -61,7 +77,7 @@ export function login(req, res) {
  * @returns {*}
  */
 
-export function accountConfirmation(req,res,next){
+export function accountConfirmation(req, res, next) {
   const { token } = req.query;
 
   CustomerService.verifyAccount(token)
@@ -73,5 +89,4 @@ export function accountConfirmation(req,res,next){
       }
     })
     .catch((err) => console.log(err));
-
 }

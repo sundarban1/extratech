@@ -1,7 +1,7 @@
 import HttpStatus from 'http-status-codes';
 
 import * as userService from '../services/user.service';
-import {notify} from '../config/mailer';
+import { notify } from '../config/mailer';
 import * as CustomerService from '../services/customer.service';
 
 /**
@@ -40,27 +40,38 @@ export function findById(req, res, next) {
  * @param {Function} next
  */
 export function store(req, res, next) {
- try {
+  try {
+    userService
+      .storeUser(req.body)
+      .then((data) => {
+        const param = data.attributes;
+        // const id = data.attributes.id;
+        param.template = 'welcome';
+        param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
+
+        notify(param);
+        res.status(200).json({ data });
+      })
+      .catch((err) => next(err));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export function accountConfirmation(req, res, next) {
+  const { token } = req.query;
+  const data = req.attributes;
+
   userService
-    .storeUser(req.body)
+    .verifyAccount(data)
     .then((data) => {
-
-      const param = data.attributes;
-      param.template = 'welcome';
-      param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
-
-
-      notify(param);
-     
-      res.status(200).json({ data })
-  
-  })
-    .catch((err) => next(err));
- }
- catch (error){
-   console.log(error);
- }
-
+      if (undefined === data) {
+        res.sendFile(path.join(__dirname, '../../public/customer/link_expired.html'));
+      } else {
+        res.sendFile(path.join(__dirname, '../../public/customer/account_verified.html'));
+      }
+    })
+    .catch((err) => console.log(err));
 }
 
 /**
@@ -91,9 +102,6 @@ export function destroy(req, res, next) {
     .catch((err) => next(err));
 }
 
-export function register(req, res, next){
-
-  res.json({'data':req.body});
-
+export function register(req, res, next) {
+  res.json({ data: req.body });
 }
-

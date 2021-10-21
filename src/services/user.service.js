@@ -34,9 +34,8 @@ export function getUser(id) {
  * @returns {Promise}
  */
 export function storeUser(user) {
-
   // eslint-disable-next-line camelcase
-  const { first_name, middle_name, last_name, email, phone, address} = user;
+  const { first_name, middle_name, last_name, email, phone, address } = user;
   const password = bcrypt.hashSync(user.password, 10);
   const token = bcrypt.hashSync('token', 10);
 
@@ -48,7 +47,7 @@ export function storeUser(user) {
     password,
     phone,
     address,
-    token
+    token,
   }).save();
 }
 
@@ -85,6 +84,27 @@ export function deleteUser(id) {
   return new User({ id })
     .fetch()
     .then((user) => user.destroy())
+    .catch(User.NotFoundError, () => {
+      throw Boom.notFound('User not found.');
+    });
+}
+
+export function verifyAccount(data) {
+  return new User({ email: email })
+    .fetch({ require: false })
+    .then((user) => {
+      if (user !== null) {
+        const id = user.attributes.email;
+
+        return new User({ email }).save({
+          // is_verified: 1,
+          status: 1,
+          // remember_token: null,
+        });
+      } else {
+        user = null;
+      }
+    })
     .catch(User.NotFoundError, () => {
       throw Boom.notFound('User not found.');
     });
