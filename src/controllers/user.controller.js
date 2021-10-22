@@ -58,6 +58,21 @@ export function store(req, res, next) {
   }
 }
 
+export function addBank(req, res, next) {
+  const authorizationHeader = req.headers['authorization'];
+  let token = authorizationHeader.split(' ')[1];
+  userService.checkExistingAccount(req.body).then((data) => {
+    if (data != null) {
+      res.json({ error: 'This account is already existed.' });
+    } else {
+      userService
+        .addBank(req.body, token)
+        .then((bank) => res.status(200).json({ bank }))
+        .catch((err) => next(err));
+    }
+  });
+}
+
 export function accountConfirmation(req, res, next) {
   const { token } = req.query;
   const data = req.attributes;

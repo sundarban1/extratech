@@ -1,7 +1,10 @@
 import Boom from '@hapi/boom';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 import User from '../models/user.model';
+import Bank from '../models/bank.model';
+import UserBank from '../models/user_bank.model';
 
 /**
  * Get all users.
@@ -51,6 +54,23 @@ export function storeUser(user) {
   }).save();
 }
 
+export function addBank(bank, token) {
+  try {
+    return jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, decoded) => {
+      const { bank_id, bsb, account, balance } = bank;
+      let user_id = decoded.id;
+      return new UserBank({
+        user_id,
+        bank_id,
+        bsb,
+        account,
+        balance,
+      }).save();
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
 /**
  * Update a user.
  *
@@ -72,6 +92,15 @@ export function updateUser(id, user) {
     .catch(User.NoRowsUpdatedError, () => {
       throw Boom.notFound('User not found.');
     });
+}
+
+//check the existing user
+export function checkExistingAccount(data) {
+  const { bsb, account } = data;
+  return new UserBank({
+    bsb,
+    account,
+  }).fetch({ require: false });
 }
 
 /**

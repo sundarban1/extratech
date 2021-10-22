@@ -98,7 +98,6 @@ router
    */
 
   .post(validate(userSchema.store), userCtrl.store)
-  
 
   /**
    * @swagger
@@ -224,7 +223,6 @@ router
 
   .delete(isAuthenticated, userCtrl.destroy);
 
-  
-
+router.route('/addBank').post(isAuthenticated, validate(userSchema.addBank), userCtrl.addBank);
 
 export default router;
