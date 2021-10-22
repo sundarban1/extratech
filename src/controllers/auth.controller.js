@@ -28,9 +28,9 @@ export function login(req, res) {
         console.log(user);
         if (
           bcrypt.compareSync(password, user.get('password')) &&
-          user.get('is_verified') === 1 &&
+          // user.get('is_verified') === 1 &&
           // user.get('status') === Constant.users.status.active
-          user.get('status') === 1
+          user.get('status') == 1
         ) {
           const token = jwt.sign(
             {
