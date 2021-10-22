@@ -1,6 +1,8 @@
 import HttpStatus from 'http-status-codes';
 
 import * as userService from '../services/user.service';
+import * as bankService from '../services/bank.service';
+
 import { notify } from '../config/mailer';
 import * as CustomerService from '../services/customer.service';
 
@@ -61,14 +63,20 @@ export function store(req, res, next) {
 export function addBank(req, res, next) {
   const authorizationHeader = req.headers['authorization'];
   let token = authorizationHeader.split(' ')[1];
-  userService.checkExistingAccount(req.body).then((data) => {
-    if (data != null) {
-      res.json({ error: 'This account is already existed.' });
+  bankService.checkBank(req.body).then((data) => {
+    if (data == null) {
+      res.status(422).json({ error: 'Bank does not exist.' });
     } else {
-      userService
-        .addBank(req.body, token)
-        .then((bank) => res.status(200).json({ bank }))
-        .catch((err) => next(err));
+      userService.checkExistingAccount(req.body).then((data) => {
+        if (data != null) {
+          res.status(422).json({ error: 'This account is already existed.' });
+        } else {
+          userService
+            .addBank(req.body, token)
+            .then((bank) => res.status(200).json({ bank }))
+            .catch((err) => next(err));
+        }
+      });
     }
   });
 }
