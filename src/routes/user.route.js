@@ -224,5 +224,8 @@ router
   .delete(isAuthenticated, userCtrl.destroy);
 
 router.route('/addBank').post(isAuthenticated, validate(userSchema.addBank), userCtrl.addBank);
+router
+  .route('/:sender_id/transaction/:receiver_id')
+  .post(isAuthenticated, validate(userSchema.transaction), userCtrl.transaction);
 
 export default router;

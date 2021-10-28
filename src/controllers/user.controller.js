@@ -5,6 +5,8 @@ import * as bankService from '../services/bank.service';
 
 import { notify } from '../config/mailer';
 import * as CustomerService from '../services/customer.service';
+import { json } from 'body-parser';
+import Bank from '../models/bank.model';
 
 /**
  * Find all the users
@@ -55,6 +57,31 @@ export function store(req, res, next) {
         res.status(200).json({ data });
       })
       .catch((err) => next(err));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export function transaction(req, res, next) {
+  const authorizationHeader = req.headers['authorization'];
+  let token = authorizationHeader.split(' ')[1];
+  try {
+    if (Bank.query.balance - req.body.amount < 0) {
+      res.status(422).json({ error: 'You have not enough balance to make a transaction' });
+    } else {
+      bankService.checkReceiver(req.body).then((data) => {
+        if (data == null) {
+          res.status(422).json({ error: 'Receiver is not exits or not active' });
+        } else {
+          const param = data.attributes;
+          param.template = 'welcome';
+          notify(param);
+          res.status(200).json({ data });
+
+          bankService.reduceSenderAmount(req.body);
+        }
+      });
+    }
   } catch (error) {
     console.log(error);
   }
