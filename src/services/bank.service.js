@@ -44,14 +44,19 @@ export function checkBalance(data) {
 }
 
 export function reduceSenderAmount(data) {
-  try {
-    // return jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, decoded) => {
-    const { sender_id, amount } = data;
-    const balance = UserBank.forge('balance').fetch();
+  const id = data.sender_id;
+  const sent_amount = parseFloat(data.amount);
 
-    return new UserBank(sender_id).save({
-      balance: balance - amount,
-    });
+  try {
+    User.query({ where: { id: id } })
+      .fetch({ require: false })
+      .then((data) => {
+        const amount = parseFloat(data.get('amount'));
+        return new User({ id }).save({
+          amount: amount - sent_amount,
+        });
+      });
+
     // });
   } catch (err) {
     console.log(err);
@@ -59,14 +64,20 @@ export function reduceSenderAmount(data) {
 }
 
 export function increaeReceiverAmount(data) {
-  try {
-    // return jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, decoded) => {
-    const { receiver_id, amount } = data;
-    const balance = UserBank.forge('balance').fetch();
+  const id = data.receiver_id;
+  const sent_amount = parseFloat(data.amount);
 
-    return new UserBank(receiver_id).save({
-      balance: balance + amount,
-    });
+  try {
+    User.query({ where: { id: id } })
+      .fetch({ require: false })
+      .then((data) => {
+        const amount = parseFloat(data.get('amount'));
+        console.log('amount', amount, sent_amount, 'sent_amount');
+        return new User({ id }).save({
+          amount: amount + sent_amount,
+        });
+      });
+
     // });
   } catch (err) {
     console.log(err);

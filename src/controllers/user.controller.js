@@ -61,39 +61,51 @@ export function store(req, res, next) {
 }
 
 export function transaction(req, res, next) {
-  var sender_id = req.params.sender_id;
-  var receiver_id = req.params.receiver_id;
-  var amount = req.params.amount;
+  var sender_id = req.body.sender_id;
+  var receiver_id = req.body.receiver_id;
+  var sent_amount = parseFloat(req.body.amount);
 
   try {
-    UserBank.query({ where: { user_id: sender_id } })
-      .fetch({ require: true })
+    User.query({ where: { id: sender_id } })
+      .fetch({ require: false })
       .then((data) => {
-        const balance = data.get('balance');
-        if (balance - amount < 0) {
-          res
-            .status(422)
-            .json({ error: 'You do not have enough balance to make this transaction.' });
+        const amount = parseFloat(data.get('amount'));
+
+        if (amount < 1) {
+          console.log('amount', amount);
+          res.status(422).json({ error: 'Please recharge your account.' });
         } else {
-          User.query({ where: { id: receiver_id } })
-            .fetch({ require: true })
-            .then((data) => {
-              if (data.get('status') != 1) {
-                res
-                  .status(422)
-                  .json({ error: 'The receiver is either not activated or not a user' });
-              }
-            });
+          if (amount < sent_amount) {
+            res
+              .status(422)
+              .json({ error: 'You do not have enough balance to make this transaction.' });
+          } else {
+            {
+              /* TODO:    
+          
+          Check if the user is exits or not
+          
+          */
+            }
+            User.query({ where: { id: receiver_id } })
+              .fetch({ require: false })
+              .then((data) => {
+                if (data.get('status') != 1) {
+                  res
+                    .status(422)
+                    .json({ error: 'The receiver is either not activated or not a user' });
+                }
+              });
+          }
+
+          bankService.reduceSenderAmount(req.body);
+          bankService.increaeReceiverAmount(req.body);
+
+          // param.template = 'welcome';
+          // notify(param);
+          res.status(200).json({ success: 'Transfer Succesfully.' });
         }
       });
-
-    // const param = data.attributes;
-    // param.template = 'welcome';
-    // notify(param);
-    // res.status(200).json({ data });
-
-    bankService.reduceSenderAmount(req.body);
-    bankService.increaeReceiverAmount(req.body, token);
   } catch (error) {
     console.log(error);
   }

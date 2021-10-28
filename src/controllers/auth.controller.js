@@ -45,7 +45,7 @@ export function login(req, res) {
             token,
             email: user.get('email'),
           });
-        } else if ('status' !== 1 && 'is_verified' !== 1) {
+        } else if ('status' !== 1) {
           res.status(404).json({
             success: false,
             message: 'User is not activated or User is not varified',
