@@ -7,6 +7,7 @@ exports.up = function (knex) {
     table.integer('bank_id').unsigned().index().references('id').inTable('banks');
     table.integer('sender_id').unsigned().index().references('id').inTable('users');
     table.integer('receiver_id').unsigned().index().references('id').inTable('users');
+    table.integer('balance').defaultTo(1000);
     table.string('status').nullable();
     table.string('transaction_type').nullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());

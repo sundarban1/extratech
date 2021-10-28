@@ -1,12 +1,10 @@
 import HttpStatus from 'http-status-codes';
-
 import * as userService from '../services/user.service';
 import * as bankService from '../services/bank.service';
-
 import { notify } from '../config/mailer';
 import * as CustomerService from '../services/customer.service';
-import { json } from 'body-parser';
-import Bank from '../models/bank.model';
+import User from '../models/user.model';
+import UserBank from '../models/user_bank.model';
 
 /**
  * Find all the users
@@ -63,25 +61,39 @@ export function store(req, res, next) {
 }
 
 export function transaction(req, res, next) {
-  const authorizationHeader = req.headers['authorization'];
-  let token = authorizationHeader.split(' ')[1];
-  try {
-    if (Bank.query.balance - req.body.amount < 0) {
-      res.status(422).json({ error: 'You have not enough balance to make a transaction' });
-    } else {
-      bankService.checkReceiver(req.body).then((data) => {
-        if (data == null) {
-          res.status(422).json({ error: 'Receiver is not exits or not active' });
-        } else {
-          const param = data.attributes;
-          param.template = 'welcome';
-          notify(param);
-          res.status(200).json({ data });
+  var sender_id = req.params.sender_id;
+  var receiver_id = req.params.receiver_id;
+  var amount = req.params.amount;
 
-          bankService.reduceSenderAmount(req.body);
+  try {
+    UserBank.query({ where: { user_id: sender_id } })
+      .fetch({ require: true })
+      .then((data) => {
+        const balance = data.get('balance');
+        if (balance - amount < 0) {
+          res
+            .status(422)
+            .json({ error: 'You do not have enough balance to make this transaction.' });
+        } else {
+          User.query({ where: { id: receiver_id } })
+            .fetch({ require: true })
+            .then((data) => {
+              if (data.get('status') != 1) {
+                res
+                  .status(422)
+                  .json({ error: 'The receiver is either not activated or not a user' });
+              }
+            });
         }
       });
-    }
+
+    // const param = data.attributes;
+    // param.template = 'welcome';
+    // notify(param);
+    // res.status(200).json({ data });
+
+    bankService.reduceSenderAmount(req.body);
+    bankService.increaeReceiverAmount(req.body, token);
   } catch (error) {
     console.log(error);
   }
