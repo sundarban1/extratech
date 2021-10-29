@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import User from '../models/user.model';
-import Bank from '../models/bank.model';
+// import Bank from '../models/bank.model';
 import UserBank from '../models/user_bank.model';
 
 /**
@@ -101,6 +101,53 @@ export function checkExistingAccount(data) {
     bsb,
     account,
   }).fetch({ require: false });
+}
+
+export function reduceBankBalance(data, params) {
+  const bsb = data.bsb;
+  const account = data.account;
+  const user_id = params.user_id;
+
+  const bank_id = data.bank_id;
+
+  const sent_balance = parseFloat(data.balance);
+  console.log(user_id, 'User Id');
+  console.log(bank_id, 'Bank Id');
+  console.log(sent_balance, 'Sent balance');
+
+  try {
+    UserBank.query({ where: { bank_id: bank_id, user_id: user_id } })
+      .fetch({ require: false })
+      .then((data) => {
+        const balance = parseFloat(data.get('balance'));
+        console.log(balance, 'Account balance');
+
+        return new UserBank({ bank_id, user_id }).save({
+          balance: balance - sent_balance,
+          bsb,
+          account,
+        });
+      });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export function increaseUserAmount(data, params) {
+  const sent_balance = parseFloat(data.balance);
+  const id = params.user_id;
+  try {
+    User.query({ where: { id: id } })
+      .fetch({ require: false })
+      .then((data) => {
+        const amount = parseFloat(data.get('amount'));
+        return new User({ id }).save({
+          amount: amount + sent_balance,
+        });
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 /**

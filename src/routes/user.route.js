@@ -228,4 +228,6 @@ router
   .route('/:sender_id/transaction/:receiver_id')
   .post(isAuthenticated, validate(userSchema.transaction), userCtrl.transaction);
 
+router.route('/:user_id/topUp').post(isAuthenticated, validate(userSchema.topUp), userCtrl.topUP);
+
 export default router;

@@ -64,46 +64,37 @@ export function transaction(req, res, next) {
   var sender_id = req.body.sender_id;
   var receiver_id = req.body.receiver_id;
   var sent_amount = parseFloat(req.body.amount);
-
   try {
-    User.query({ where: { id: sender_id } })
+    User.query({ where: { id: receiver_id } })
       .fetch({ require: false })
       .then((data) => {
-        const amount = parseFloat(data.get('amount'));
-
-        if (amount < 1) {
-          console.log('amount', amount);
-          res.status(422).json({ error: 'Please recharge your account.' });
+        if (data == null) {
+          res.status(422).json({ error: 'The user is not exist' });
+        } else if (data.get('status') != 1) {
+          res.status(422).json({ error: 'The user is not activated' });
         } else {
-          if (amount < sent_amount) {
-            res
-              .status(422)
-              .json({ error: 'You do not have enough balance to make this transaction.' });
-          } else {
-            {
-              /* TODO:    
-          
-          Check if the user is exits or not
-          
-          */
-            }
-            User.query({ where: { id: receiver_id } })
-              .fetch({ require: false })
-              .then((data) => {
-                if (data.get('status') != 1) {
+          User.query({ where: { id: sender_id } })
+            .fetch({ require: false })
+            .then((data) => {
+              const amount = parseFloat(data.get('amount'));
+
+              if (amount < 1) {
+                res.status(422).json({ error: 'Please recharge your account.' });
+              } else {
+                if (amount < sent_amount) {
                   res
                     .status(422)
-                    .json({ error: 'The receiver is either not activated or not a user' });
+                    .json({ error: 'You do not have enough balance to make this transaction.' });
+                } else {
+                  bankService.reduceSenderAmount(req.body);
+                  bankService.increaeReceiverAmount(req.body);
+                  res.status(200).json({ success: 'Transfer Succesfully.' });
                 }
-              });
-          }
 
-          bankService.reduceSenderAmount(req.body);
-          bankService.increaeReceiverAmount(req.body);
-
-          // param.template = 'welcome';
-          // notify(param);
-          res.status(200).json({ success: 'Transfer Succesfully.' });
+                // param.template = 'welcome';
+                // notify(param);
+              }
+            });
         }
       });
   } catch (error) {
@@ -130,6 +121,37 @@ export function addBank(req, res, next) {
       });
     }
   });
+}
+
+export function topUP(req, res, next) {
+  const bank_id = req.body.bank_id;
+  const sent_balance = req.body.balance;
+  const user_id = req.params.user_id;
+
+  try {
+    UserBank.query({ where: { bank_id: bank_id, user_id: user_id } })
+      .fetch({ require: false })
+      .then((data) => {
+        var balance = parseFloat(data.get('balance'));
+        if (balance < sent_balance) {
+          res.status(422).json({ error: 'You have insufficient balance to top up.' });
+        } else {
+          UserBank.query({ where: { bank_id: bank_id, user_id: user_id } })
+            .fetch({ require: false })
+            .then((data) => {
+              const id = data.get('id');
+              return new UserBank({ id }).save({
+                balance: balance - sent_balance,
+              });
+            });
+          userService.increaseUserAmount(req.body, req.params);
+
+          res.status(422).json({ success: 'The top up is successful.' });
+        }
+      });
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 export function accountConfirmation(req, res, next) {
