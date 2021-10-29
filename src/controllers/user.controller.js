@@ -5,6 +5,7 @@ import { notify } from '../config/mailer';
 import * as CustomerService from '../services/customer.service';
 import User from '../models/user.model';
 import UserBank from '../models/user_bank.model';
+import multer from 'multer';
 
 /**
  * Find all the users
@@ -121,6 +122,10 @@ export function addBank(req, res, next) {
       });
     }
   });
+}
+
+export function profilePicture(req, res, next) {
+  res.json({ name: req.file });
 }
 
 export function topUP(req, res, next) {

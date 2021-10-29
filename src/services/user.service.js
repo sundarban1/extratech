@@ -104,8 +104,6 @@ export function checkExistingAccount(data) {
 }
 
 export function reduceBankBalance(data, params) {
-  const bsb = data.bsb;
-  const account = data.account;
   const user_id = params.user_id;
 
   const bank_id = data.bank_id;
@@ -124,8 +122,6 @@ export function reduceBankBalance(data, params) {
 
         return new UserBank({ bank_id, user_id }).save({
           balance: balance - sent_balance,
-          bsb,
-          account,
         });
       });
   } catch (error) {

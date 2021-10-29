@@ -3,6 +3,7 @@ import * as userCtrl from '../controllers/user.controller';
 import isAuthenticated from '../middlewares/authenticate';
 import validate from '../config/joi.validate';
 import userSchema from '../validators/user.validator';
+import multer from 'multer';
 
 const router = express.Router();
 
@@ -229,5 +230,10 @@ router
   .post(isAuthenticated, validate(userSchema.transaction), userCtrl.transaction);
 
 router.route('/:user_id/topUp').post(isAuthenticated, validate(userSchema.topUp), userCtrl.topUP);
+
+const upload = multer({ dest: 'uploads/' });
+router
+  .route('/:user_id/profilePicture', upload.single('image'))
+  .post(isAuthenticated, userCtrl.profilePicture);
 
 export default router;
