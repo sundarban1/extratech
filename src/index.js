@@ -32,15 +32,15 @@ const multerStorage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = file.mimetype.split('/')[1];
-    cb(null, `/${file.fieldname}-${Date.now()}.${ext}`);
+    cb(null, `/admin-${file.fieldname}-${Date.now()}.${ext}`);
   },
 });
 
 const multerFilter = (req, file, cb) => {
-  if (file.mimetype.split('/')[1] === 'jpg') {
+  if (file.mimetype.split('/')[1] === 'pdf') {
     cb(null, true);
   } else {
-    cb(new Error('Not a Jpg File!!'), false);
+    cb(new Error('Not a PDF File!!'), false);
   }
 };
 const upload = multer({
@@ -50,7 +50,7 @@ const upload = multer({
 
 app.post('/uploadPicture', upload.single('image'), function (req, res, next) {
   const photo = req.file.filename;
-
+  // res.json({ photo: photo });
   try {
     let id = 1;
     const newFile = new User({ id }).save({
