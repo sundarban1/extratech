@@ -26,40 +26,33 @@ app.get('/swagger.json', (req, res) => {
 //   },
 // });
 
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads');
+// var upload = multer({ dest: 'uploads/' });
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/img');
   },
-  filename: (req, file, cb) => {
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `/admin-${file.fieldname}-${Date.now()}.${ext}`);
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
   },
 });
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.split('/')[1] === 'pdf') {
-    cb(null, true);
-  } else {
-    cb(new Error('Not a PDF File!!'), false);
-  }
-};
-const upload = multer({
-  storage: multerStorage,
-  fileFilter: multerFilter,
-});
+var upload = multer({ storage: storage });
 
 app.post('/uploadPicture', upload.single('image'), function (req, res, next) {
   const photo = req.file.filename;
-  // res.json({ photo: photo });
+  const id = 1;
+  let user = new User({ id })
+    .save({
+      image: photo,
+    })
+    .then((data) => {
+      res
+        .status(200)
+        .json({ user: data, image: `http://${process.env.APP_HOST}/img/${data.get('image')}` });
+    });
+
   try {
-    let id = 1;
-    const newFile = new User({ id }).save({
-      image: req.file.filename,
-    });
-    res.status(200).json({
-      status: 'success',
-      message: 'File created successfully!!',
-    });
   } catch (error) {
     console.log(error);
   }
