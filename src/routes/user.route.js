@@ -231,9 +231,8 @@ router
 
 router.route('/:user_id/topUp').post(isAuthenticated, validate(userSchema.topUp), userCtrl.topUP);
 
-const upload = multer({ dest: 'uploads/' });
 router
-  .route('/:user_id/profilePicture', upload.single('image'))
-  .post(isAuthenticated, userCtrl.profilePicture);
+  .route('/:user_id/profilePicture')
+  .post(isAuthenticated, userCtrl.upload.single('image'), userCtrl.profilePicture);
 
 export default router;

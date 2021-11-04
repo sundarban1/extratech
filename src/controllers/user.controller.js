@@ -124,9 +124,37 @@ export function addBank(req, res, next) {
   });
 }
 
+//This will tell multer where we want to upload the image and
+//by what name the file should be saved.
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/img');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+export var upload = multer({ storage: storage });
+
 export function profilePicture(req, res, next) {
-  res.json({ name: req.file });
-  
+  try {
+    const photo = req.file.filename;
+    const id = req.params.user_id;
+    let user = new User({ id })
+      .save({
+        image: photo,
+      })
+      .then((data) => {
+        res.status(200).json({
+          success: 'Photo is uploaded successfully',
+          user: data,
+          image: `http://${process.env.APP_HOST}/img/${data.get('image')}`,
+        });
+      });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 export function topUP(req, res, next) {
