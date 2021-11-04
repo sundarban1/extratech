@@ -22,7 +22,7 @@ export function checkBank(data) {
   }).fetch({ require: false });
 }
 
-export function checkUser(data) {
+export function checkReceiver(data) {
   const id = data.receiver_id;
   return new User({
     id,

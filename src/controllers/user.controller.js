@@ -126,6 +126,7 @@ export function addBank(req, res, next) {
 
 export function profilePicture(req, res, next) {
   res.json({ name: req.file });
+  
 }
 
 export function topUP(req, res, next) {
