@@ -1,11 +1,13 @@
 import HttpStatus from 'http-status-codes';
 import * as userService from '../services/user.service';
 import * as bankService from '../services/bank.service';
+import * as imagevalidator from '../imageValidator/user.image';
 import { notify } from '../config/mailer';
 import * as CustomerService from '../services/customer.service';
 import User from '../models/user.model';
 import UserBank from '../models/user_bank.model';
 import multer from 'multer';
+import { compareSync } from 'bcrypt';
 
 /**
  * Find all the users
@@ -51,7 +53,6 @@ export function store(req, res, next) {
         // const id = data.attributes.id;
         param.template = 'welcome';
         param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
-
         notify(param);
         res.status(200).json({ data });
       })
@@ -60,10 +61,37 @@ export function store(req, res, next) {
     console.log(error);
   }
 }
+export function makeRequest(req, res, next) {
+  try {
+    const req_amount = req.body.amount;
+    const sender_id = req.params.sender_id;
+
+    // res.json({ sender_id: sender_id, receiver_id: receiver_id, bank_id: bank_id });
+
+    User.query({ where: { id: sender_id } })
+      .fetch({ require: false })
+      .then((data) => {
+        const amount = parseFloat(data.get('amount'));
+        if (data == null) {
+          res.status(422).json({ error: 'The user not exists' });
+        } else if (data.get('status') != 1) {
+          res.status(422).json({ error: 'The user is not activated' });
+        } else if (amount < req_amount) {
+          res.status(422).json({ error: 'The sender has not enough money to send' });
+        } else {
+          bankService.reduceSenderAmount(req.body, req.params);
+          bankService.increaeReceiverAmount(req.body, req.params);
+          res.status(200).json({ success: 'Transfer Succesfully.' });
+        }
+      });
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 export function transaction(req, res, next) {
-  var sender_id = req.body.sender_id;
-  var receiver_id = req.body.receiver_id;
+  var sender_id = req.params.sender_id;
+  var receiver_id = req.params.receiver_id;
   var sent_amount = parseFloat(req.body.amount);
   try {
     User.query({ where: { id: receiver_id } })
@@ -87,12 +115,11 @@ export function transaction(req, res, next) {
                     .status(422)
                     .json({ error: 'You do not have enough balance to make this transaction.' });
                 } else {
-                  bankService.reduceSenderAmount(req.body);
-                  bankService.increaeReceiverAmount(req.body);
+                  bankService.reduceSenderAmount(req.body, req.params);
+                  bankService.increaeReceiverAmount(req.body, req.params);
                   res.status(200).json({ success: 'Transfer Succesfully.' });
                 }
 
-                // param.template = 'welcome';
                 // notify(param);
               }
             });
@@ -124,8 +151,6 @@ export function addBank(req, res, next) {
   });
 }
 
-//This will tell multer where we want to upload the image and
-//by what name the file should be saved.
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './public/img');
@@ -135,25 +160,72 @@ var storage = multer.diskStorage({
   },
 });
 
-export var upload = multer({ storage: storage });
+// var upload = multer({
+//   storage: storage,
+//   fileFilter: (req, file, cb) => {
+//     if (
+//       file.mimetype == 'image/png' ||
+//       file.mimetype == 'image/jpg' ||
+//       file.mimetype == 'image/jpeg'
+//     ) {
+//       cb(null, true);
+//     } else {
+//       cb(null, false);
+//       // res.status(422).json({ error: 'Only .png, .jpg and .jpeg format allowed!' });
+//       console.log('Only .png, .jpg and .jpeg format allowed!');
+//       return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+//     }
+//   },
+// }).single();
+
+// const upload = multer().single('avatar');
 
 export function profilePicture(req, res, next) {
+  const photo = req.file.filename;
+  const id = req.params.user_id;
   try {
-    const photo = req.file.filename;
-    const id = req.params.user_id;
-    let user = new User({ id })
-      .save({
-        image: photo,
-      })
-      .then((data) => {
-        res.status(200).json({
-          success: 'Photo is uploaded successfully',
-          user: data,
-          image: `http://${process.env.APP_HOST}/img/${data.get('image')}`,
+    var upload = multer({
+      storage: storage,
+      fileFilter: (req, file, cb) => {
+        if (
+          file.mimetype == 'image/png' ||
+          file.mimetype == 'image/jpg' ||
+          file.mimetype == 'image/jpeg'
+        ) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+          // res.status(422).json({ error: 'Only .png, .jpg and .jpeg format allowed!' });
+          console.log('Only .png, .jpg and .jpeg format allowed!');
+          res.status(200).json({ error: 'Only .png, .jpg and .jpeg format allowed!' });
+          return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+        }
+      },
+    }).single('image');
+
+    upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+        //A multer errror occur when uploading
+        res.status(422).json({ error: 'multer errror occur when uploading' });
+      } else if (err) {
+        //An unknown error occur when uplaoding
+        res.status(422).json({ error: 'An unknown error occur when uplaoding' });
+      }
+      // everything went fine here
+      let user = new User({ id })
+        .save({
+          image: photo,
+        })
+        .then((data) => {
+          res.status(200).json({
+            success: 'Photo is uploaded successfully',
+            user: data,
+            image: `http://${process.env.APP_HOST}/img/${data.get('image')}`,
+          });
         });
-      });
-  } catch (err) {
-    console.log(err);
+    });
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -183,8 +255,8 @@ export function topUP(req, res, next) {
           res.status(422).json({ success: 'The top up is successful.' });
         }
       });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
   }
 }
 

@@ -50,9 +50,9 @@ export function checkBalance(data) {
   }).fetch({ required: false });
 }
 
-export function reduceSenderAmount(data) {
-  const id = data.sender_id;
-  const sent_amount = parseFloat(data.amount);
+export function reduceSenderAmount(body, params) {
+  const id = params.sender_id;
+  const sent_amount = parseFloat(body.amount);
 
   try {
     User.query({ where: { id: id } })
@@ -70,9 +70,9 @@ export function reduceSenderAmount(data) {
   }
 }
 
-export function increaeReceiverAmount(data) {
-  const id = data.receiver_id;
-  const sent_amount = parseFloat(data.amount);
+export function increaeReceiverAmount(body, params) {
+  const id = params.receiver_id;
+  const sent_amount = parseFloat(body.amount);
 
   try {
     User.query({ where: { id: id } })

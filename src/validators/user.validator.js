@@ -23,6 +23,10 @@ export default {
     receiver_id: Joi.string().required(),
     amount: Joi.string().required(),
   }),
+  makeRequest: Joi.object({
+    bank_id: Joi.string().required(),
+    amount: Joi.string().required(),
+  }),
   topUp: Joi.object({
     bank_id: Joi.number().required(),
     balance: Joi.number().required(),
