@@ -235,6 +235,8 @@ router
   .route('/:receiver_id/makeRequest/:sender_id')
   .post(isAuthenticated, validate(userSchema.makeRequest), userCtrl.makeRequest);
 
+router.route('/:id/transaction/:transaction_id').get(isAuthenticated, userCtrl.handleRequest);
+
 router.route('/:user_id/topUp').post(isAuthenticated, validate(userSchema.topUp), userCtrl.topUP);
 
 router.route('/:user_id/profilePicture').post(isAuthenticated, userCtrl.profilePicture);

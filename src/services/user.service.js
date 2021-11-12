@@ -1,6 +1,7 @@
 import Boom from '@hapi/boom';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Transaction from '../models/transaction.model';
 
 import User from '../models/user.model';
 // import Bank from '../models/bank.model';
@@ -101,6 +102,58 @@ export function checkExistingAccount(data) {
     bsb,
     account,
   }).fetch({ require: false });
+}
+
+///
+export function increaseReceiverAmount(transaction_id) {
+  Transaction.query({ where: { id: transaction_id } })
+    .fetch({ require: false })
+    .then((data) => {
+      // const user_id = data.get('sender_id');
+      const req_amount = parseFloat(data.get('amount'));
+      const receiver_id = data.get('receiver_id');
+      //req 1, send 2
+
+      return User.query({ where: { id: receiver_id } })
+        .fetch({ require: false })
+        .then((data) => {
+          const balance = parseFloat(data.get('amount'));
+          const total_receive = parseFloat(data.get('total_recieve'));
+
+          // balance = balance + req_amount;
+          return new User({ id: receiver_id }).save({
+            amount: balance + req_amount,
+            total_recieve: total_receive + req_amount,
+          });
+        });
+    });
+}
+
+///
+
+export function reduceSenderAmount(transaction_id, user_id) {
+  Transaction.query({ where: { id: transaction_id } })
+    .fetch({ require: false })
+    .then((data) => {
+      const req_amount = parseFloat(data.get('amount'));
+      const sender_id = data.get('sender_id');
+
+      return User.query({ where: { id: sender_id } })
+        .fetch({ require: false })
+        .then((data) => {
+          const balance = parseFloat(data.get('amount'));
+          const total_sent = parseFloat(data.get('total_sent'));
+          if (balance < req_amount) {
+            return false;
+          } else {
+            // balance = balance - req_amount;
+            return new User({ id: sender_id }).save({
+              amount: balance - req_amount,
+              total_sent: total_sent + req_amount,
+            });
+          }
+        });
+    });
 }
 
 export function reduceBankBalance(data, params) {

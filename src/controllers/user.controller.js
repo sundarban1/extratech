@@ -5,6 +5,7 @@ import * as imagevalidator from '../imageValidator/user.image';
 import { notify } from '../config/mailer';
 import * as CustomerService from '../services/customer.service';
 import User from '../models/user.model';
+import Transaction from '../models/transaction.model';
 import UserBank from '../models/user_bank.model';
 import multer from 'multer';
 import { compareSync } from 'bcrypt';
@@ -61,6 +62,52 @@ export function store(req, res, next) {
     console.log(error);
   }
 }
+
+export function handleRequest(req, res, next) {
+  const user_id = req.params.id;
+  const transaction_id = req.params.transaction_id;
+  const status = req.query.status;
+
+  try {
+    Transaction.query({ where: { id: transaction_id } })
+      .fetch({ require: true })
+      .then((data) => {
+        const transaction_status = data.get('status');
+        if (transaction_status != 'pending') {
+          res.status(422).json({ error: 'Your transaction is completed' });
+        } else {
+          if (status == 'accept') {
+            var response = userService.reduceSenderAmount(transaction_id, user_id);
+
+            if (!response) {
+              res
+                .status(422)
+                .json({ error: 'you do not have enough balance to make the transaction.' });
+            } else {
+              userService.increaseReceiverAmount(transaction_id);
+
+              return new Transaction({ id: transaction_id })
+                .save({
+                  status: 'Complete',
+                })
+                .then((data) => {
+                  res.status(200).json({ success: 'Your transaction was successful.' });
+                });
+            }
+
+            //
+          } else {
+            return new Transaction({ id: transaction_id }).save({
+              status: 'cancel',
+            });
+          }
+        }
+      });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export function makeRequest(req, res, next) {
   try {
     const req_amount = req.body.amount;
@@ -116,6 +163,7 @@ export function transaction(req, res, next) {
                     .status(422)
                     .json({ error: 'You do not have enough balance to make this transaction.' });
                 } else {
+                  //record transaction in transaction bank
                   bankService.reduceSenderAmount(req.body, req.params);
                   bankService.increaeReceiverAmount(req.body, req.params);
                   res.status(200).json({ success: 'Transfer Succesfully.' });

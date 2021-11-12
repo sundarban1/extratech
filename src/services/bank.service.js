@@ -57,10 +57,6 @@ export function requestAmount(body, params) {
   const request_amount = parseFloat(body.amount);
 
   try {
-    // User.query({ where: { id: id } })
-    //   .fetch({ require: false })
-    //   .then((data) => {
-
     return new Transaction().save({
       transaction_number: uuidv4(),
       amount: request_amount,
@@ -69,7 +65,6 @@ export function requestAmount(body, params) {
       status: 'pending',
       transaction_type: 'request',
     });
-    // });
   } catch (err) {
     console.log(err);
   }
