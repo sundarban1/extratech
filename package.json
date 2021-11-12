@@ -53,6 +53,7 @@
     "path": "^0.12.7",
     "serve-favicon": "^2.5.0",
     "swagger-jsdoc": "^6.0.0-rc.4",
+    "uuid": "^8.3.2",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.0"
   },

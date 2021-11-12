@@ -67,6 +67,7 @@ export function makeRequest(req, res, next) {
     const sender_id = req.params.sender_id;
 
     // res.json({ sender_id: sender_id, receiver_id: receiver_id, bank_id: bank_id });
+    // notify(params)
 
     User.query({ where: { id: sender_id } })
       .fetch({ require: false })
@@ -76,12 +77,12 @@ export function makeRequest(req, res, next) {
           res.status(422).json({ error: 'The user not exists' });
         } else if (data.get('status') != 1) {
           res.status(422).json({ error: 'The user is not activated' });
-        } else if (amount < req_amount) {
-          res.status(422).json({ error: 'The sender has not enough money to send' });
         } else {
-          bankService.reduceSenderAmount(req.body, req.params);
-          bankService.increaeReceiverAmount(req.body, req.params);
-          res.status(200).json({ success: 'Transfer Succesfully.' });
+          bankService.requestAmount(req.body, req.params);
+          // bankService.reduceSenderAmount(req.body, req.params);
+          // bankService.increaeReceiverAmount(req.body, req.params);
+          res.status(200).json({ success: 'Your request has been sent.' });
+          // res.status(200).json({ success: 'Transfer Succesfully.' });
         }
       });
   } catch (err) {
@@ -160,23 +161,23 @@ var storage = multer.diskStorage({
   },
 });
 
-// var upload = multer({
-//   storage: storage,
-//   fileFilter: (req, file, cb) => {
-//     if (
-//       file.mimetype == 'image/png' ||
-//       file.mimetype == 'image/jpg' ||
-//       file.mimetype == 'image/jpeg'
-//     ) {
-//       cb(null, true);
-//     } else {
-//       cb(null, false);
-//       // res.status(422).json({ error: 'Only .png, .jpg and .jpeg format allowed!' });
-//       console.log('Only .png, .jpg and .jpeg format allowed!');
-//       return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
-//     }
-//   },
-// }).single();
+var upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype == 'image/png' ||
+      file.mimetype == 'image/jpg' ||
+      file.mimetype == 'image/jpeg'
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      // res.status(422).json({ error: 'Only .png, .jpg and .jpeg format allowed!' });
+      console.log('Only .png, .jpg and .jpeg format allowed!');
+      return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    }
+  },
+}).single();
 
 // const upload = multer().single('avatar');
 
@@ -184,25 +185,6 @@ export function profilePicture(req, res, next) {
   const photo = req.file.filename;
   const id = req.params.user_id;
   try {
-    var upload = multer({
-      storage: storage,
-      fileFilter: (req, file, cb) => {
-        if (
-          file.mimetype == 'image/png' ||
-          file.mimetype == 'image/jpg' ||
-          file.mimetype == 'image/jpeg'
-        ) {
-          cb(null, true);
-        } else {
-          cb(null, false);
-          // res.status(422).json({ error: 'Only .png, .jpg and .jpeg format allowed!' });
-          console.log('Only .png, .jpg and .jpeg format allowed!');
-          res.status(200).json({ error: 'Only .png, .jpg and .jpeg format allowed!' });
-          return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
-        }
-      },
-    }).single('image');
-
     upload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         //A multer errror occur when uploading
