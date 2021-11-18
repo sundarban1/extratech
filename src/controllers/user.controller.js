@@ -63,7 +63,45 @@ export function store(req, res, next) {
   }
 }
 
+//History of the transaction
+export function transactioHistory(req, res, next) {
+  const id = req.params.user_id;
+
+  User.query({ where: { id: id } })
+    .fetch({ required: false })
+    .then((data) => {
+      const total_sent = data.get('total_sent');
+      const total_recieve = data.get('total_receive');
+      Transaction.query({ where: { user_id: id } })
+        .fetch({ required: false })
+        .then((data) => {
+          const sender_id = data.get('sender_id');
+          const receiver_id = data.get('receiver_id');
+
+          User.query({ where: { id: receiver_id } })
+            .fetch({ required: false })
+            .then((data) => {
+              const receiver_name = data.get('first_name');
+
+              User.query({ where: { id: sender_id } })
+                .fetch({ required: false })
+                .then((data) => {
+                  const sender_name = data.get('first_name');
+
+                  res
+                    .status(200)
+                    .json({ success: `${sender_name}, send, ${receiver_name}, ${total_sent}` });
+                  res
+                    .status(200)
+                    .json({ success: `${receiver_name}, send, ${sender_name}, ${total_recieve}` });
+                });
+            });
+        });
+    });
+}
+
 export function handleRequest(req, res, next) {
+  // res.json({ name: 'ramesh' });
   const user_id = req.params.id;
   const transaction_id = req.params.transaction_id;
   const status = req.query.status;
@@ -74,7 +112,7 @@ export function handleRequest(req, res, next) {
       .then((data) => {
         const transaction_status = data.get('status');
         if (transaction_status != 'pending') {
-          res.status(422).json({ error: 'Your transaction is completed' });
+          res.status(422).json({ error: 'Your transaction is already completed' });
         } else {
           if (status == 'accept') {
             var response = userService.reduceSenderAmount(transaction_id, user_id);
@@ -86,6 +124,7 @@ export function handleRequest(req, res, next) {
             } else {
               userService.increaseReceiverAmount(transaction_id);
 
+              //Change the status of transaction from pending to Complete
               return new Transaction({ id: transaction_id })
                 .save({
                   status: 'Complete',
@@ -97,6 +136,7 @@ export function handleRequest(req, res, next) {
 
             //
           } else {
+            //If the user cancel the Transaction then set the Status in the Transaction table to Cancel.
             return new Transaction({ id: transaction_id }).save({
               status: 'cancel',
             });

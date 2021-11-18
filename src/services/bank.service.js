@@ -3,8 +3,10 @@ import User from '../models/user.model';
 import Transaction from '../models/transaction.model';
 
 import UserBank from '../models/user_bank.model';
+import TransactioHistory from '../models/transaction_history.model';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+import { transactioHistory } from '../controllers/user.controller';
 
 /**
  * Get all customers.
@@ -83,6 +85,11 @@ export function reduceSenderAmount(body, params) {
           amount: amount - sent_amount,
         });
       });
+    return new TransactioHistory().save({
+      user_id: id,
+      sender_id: id,
+      sent_amount: sent_amount,
+    });
 
     // });
   } catch (err) {
@@ -103,6 +110,11 @@ export function increaeReceiverAmount(body, params) {
           amount: amount + sent_amount,
         });
       });
+
+    return new TransactioHistory().save({
+      receiver_id: id,
+      receive_amount: sent_amount,
+    });
 
     // });
   } catch (err) {
