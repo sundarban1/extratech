@@ -123,7 +123,7 @@ router
    *            type: object
    */
 
-  .get(isAuthenticated, userCtrl.findAll);
+  .get(userCtrl.findAll);
 
 router
   .route('/:id')

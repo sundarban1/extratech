@@ -7,6 +7,7 @@ import TransactioHistory from '../models/transaction_history.model';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { transactioHistory } from '../controllers/user.controller';
+import TransactionHitory from '../models/transaction_history.model';
 
 /**
  * Get all customers.
@@ -59,14 +60,21 @@ export function requestAmount(body, params) {
   const request_amount = parseFloat(body.amount);
 
   try {
-    return new Transaction().save({
-      transaction_number: uuidv4(),
-      amount: request_amount,
-      sender_id: sender_id,
-      receiver_id: receiver_id,
-      status: 'pending',
-      transaction_type: 'request',
-    });
+    return (
+      new Transaction().save({
+        transaction_number: uuidv4(),
+        amount: request_amount,
+        sender_id: sender_id,
+        receiver_id: receiver_id,
+        status: 'pending',
+        transaction_type: 'request',
+      }),
+      new TransactioHistory().save({
+        sender_id: sender_id,
+        receiver_id: receiver_id,
+        request_amount: request_amount,
+      })
+    );
   } catch (err) {
     console.log(err);
   }
@@ -75,6 +83,7 @@ export function requestAmount(body, params) {
 export function reduceSenderAmount(body, params) {
   const id = params.sender_id;
   const sent_amount = parseFloat(body.amount);
+  const receiver_id = params.receiver_id;
 
   try {
     User.query({ where: { id: id } })
@@ -86,8 +95,9 @@ export function reduceSenderAmount(body, params) {
         });
       });
     return new TransactioHistory().save({
-      user_id: id,
+      id: id,
       sender_id: id,
+      receiver_id: receiver_id,
       sent_amount: sent_amount,
     });
 
@@ -98,6 +108,7 @@ export function reduceSenderAmount(body, params) {
 }
 
 export function increaeReceiverAmount(body, params) {
+  const sender_id = params.sender_id;
   const id = params.receiver_id;
   const sent_amount = parseFloat(body.amount);
 
@@ -112,6 +123,8 @@ export function increaeReceiverAmount(body, params) {
       });
 
     return new TransactioHistory().save({
+      id: id,
+      sender_id: sender_id,
       receiver_id: id,
       receive_amount: sent_amount,
     });

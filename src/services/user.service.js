@@ -2,6 +2,7 @@ import Boom from '@hapi/boom';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Transaction from '../models/transaction.model';
+import TransactionHitory from '../models/transaction_history.model';
 
 import User from '../models/user.model';
 // import Bank from '../models/bank.model';
@@ -194,6 +195,10 @@ export function increaseUserAmount(data, params) {
           amount: amount + sent_balance,
         });
       });
+    return new TransactionHitory().save({
+      user_id: id,
+      topup_amount: sent_balance,
+    });
   } catch (error) {
     console.log(error);
   }
