@@ -70,6 +70,7 @@ export function requestAmount(body, params) {
         transaction_type: 'request',
       }),
       new TransactioHistory().save({
+        user_id: sender_id,
         sender_id: sender_id,
         receiver_id: receiver_id,
         request_amount: request_amount,
@@ -95,7 +96,7 @@ export function reduceSenderAmount(body, params) {
         });
       });
     return new TransactioHistory().save({
-      id: id,
+      user_id: id,
       sender_id: id,
       receiver_id: receiver_id,
       sent_amount: sent_amount,
@@ -123,7 +124,7 @@ export function increaeReceiverAmount(body, params) {
       });
 
     return new TransactioHistory().save({
-      id: id,
+      user_id: id,
       sender_id: sender_id,
       receiver_id: id,
       receive_amount: sent_amount,
