@@ -47,17 +47,26 @@ export function findById(req, res, next) {
  */
 export function store(req, res, next) {
   try {
-    userService
-      .storeUser(req.body)
-      .then((data) => {
-        const param = data.attributes;
-        // const id = data.attributes.id;
-        param.template = 'welcome';
-        param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
-        notify(param);
-        res.status(200).json({ data });
-      })
-      .catch((err) => next(err));
+    userService.getUserByEmail(req.body.email).then((user) => {
+      if (user !== null) {
+        res
+          .status(HttpStatus.UNPROCESSABLE_ENTITY)
+          .json({ error: true, message: req.body.email + ' already exist.' });
+      } else {
+        userService
+          .storeUser(req.body)
+          .then((data) => {
+            const param = data.attributes;
+            // const id = data.attributes.id;
+            param.template = 'welcome';
+            param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
+            notify(param);
+            res.status(200).json({ data });
+          })
+          .catch((err) => next(err));
+        /////
+      }
+    });
   } catch (error) {
     console.log(error);
   }

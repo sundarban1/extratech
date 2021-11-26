@@ -32,6 +32,24 @@ export function getUser(id) {
     });
 }
 
+export function getUserByEmail(email) {
+  return new User({ email })
+    .fetch({ require: false })
+    .then((user) => user)
+    .catch(User.NotFoundError, () => {
+      throw Boom.notFound('User not found.');
+    });
+}
+
+export function getUserByPhone(email) {
+  return new User({ phone })
+    .fetch({ require: false })
+    .then((user) => user)
+    .catch(User.NotFoundError, () => {
+      throw Boom.notFound('User not found.');
+    });
+}
+
 /**
  * Create new user.
  *
