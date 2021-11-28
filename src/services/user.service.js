@@ -41,7 +41,7 @@ export function getUserByEmail(email) {
     });
 }
 
-export function getUserByPhone(email) {
+export function getUserByPhone(phone) {
   return new User({ phone })
     .fetch({ require: false })
     .then((user) => user)

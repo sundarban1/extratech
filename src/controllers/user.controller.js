@@ -53,18 +53,25 @@ export function store(req, res, next) {
           .status(HttpStatus.UNPROCESSABLE_ENTITY)
           .json({ error: true, message: req.body.email + ' already exist.' });
       } else {
-        userService
-          .storeUser(req.body)
-          .then((data) => {
-            const param = data.attributes;
-            // const id = data.attributes.id;
-            param.template = 'welcome';
-            param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
-            notify(param);
-            res.status(200).json({ data });
-          })
-          .catch((err) => next(err));
-        /////
+        userService.getUserByPhone(req.body.phone).then((user) => {
+          if (user !== null) {
+            res
+              .status(HttpStatus.UNPROCESSABLE_ENTITY)
+              .json({ error: true, message: req.body.phone + ' already exist.' });
+          } else {
+            userService
+              .storeUser(req.body)
+              .then((data) => {
+                const param = data.attributes;
+                // const id = data.attributes.id;
+                param.template = 'welcome';
+                param.confirmationUrl = CustomerService.generateConfirmationUrl(param.token);
+                notify(param);
+                res.status(200).json({ data });
+              })
+              .catch((err) => next(err));
+          }
+        });
       }
     });
   } catch (error) {
