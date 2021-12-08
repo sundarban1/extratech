@@ -19,8 +19,6 @@ export default {
   }),
   transaction: Joi.object({
     bank_id: Joi.string().required(),
-    sender_id: Joi.string().required(),
-    receiver_id: Joi.string().required(),
     amount: Joi.string().required(),
   }),
   makeRequest: Joi.object({

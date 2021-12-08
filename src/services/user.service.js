@@ -16,6 +16,9 @@ import UserBank from '../models/user_bank.model';
 export function getAllUser() {
   return User.forge().fetchAll();
 }
+export function getHistory() {
+  return TransactionHitory.forge().fetchAll();
+}
 
 /**
  * Get a user.
@@ -100,18 +103,25 @@ export function addBank(bank, token) {
  */
 export function updateUser(id, user) {
   // eslint-disable-next-line camelcase
-  const { first_name, last_name, email, status } = user;
-
-  return new User({ id })
-    .save({
-      first_name: first_name,
-      last_name: last_name,
-      email: email,
-      status: status,
-    })
-    .catch(User.NoRowsUpdatedError, () => {
-      throw Boom.notFound('User not found.');
-    });
+  const { first_name, last_name, email, status, phone, password, dob, address } = user;
+  try {
+    return new User({ id })
+      .save({
+        first_name: first_name,
+        last_name: last_name,
+        phone: phone,
+        email: email,
+        password: password,
+        dob: dob,
+        status: status,
+        address: address,
+      })
+      .catch(User.NoRowsUpdatedError, () => {
+        throw Boom.notFound('User not found.');
+      });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 //check the existing user

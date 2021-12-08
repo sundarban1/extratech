@@ -34,7 +34,11 @@ export function findAll(req, res, next) {
 export function findById(req, res, next) {
   userService
     .getUser(req.params.id)
-    .then((data) => res.json({ data }))
+    .then((data) => {
+      const param = data.attributes;
+      param.image_path = `http://${process.env.APP_HOST}:8000/img/${data.get('image')}`;
+      res.json({ data });
+    })
     .catch((err) => next(err));
 }
 
@@ -77,6 +81,14 @@ export function store(req, res, next) {
   } catch (error) {
     console.log(error);
   }
+}
+
+//History
+export function history(req, res, next) {
+  userService
+    .getHistory()
+    .then((data) => res.json({ data }))
+    .catch((err) => next(err));
 }
 
 //History of the transaction
@@ -370,10 +382,14 @@ export function accountConfirmation(req, res, next) {
  * @param {Function} next
  */
 export function update(req, res, next) {
-  userService
-    .updateUser(req.params.id, req.body)
-    .then((data) => res.json({ data }))
-    .catch((err) => next(err));
+  try {
+    userService
+      .updateUser(req.params.id, req.body)
+      .then((data) => res.json({ data }))
+      .catch((err) => next(err));
+  } catch (err) {
+    console.log(err, 'err');
+  }
 }
 
 /**

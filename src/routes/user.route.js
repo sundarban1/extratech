@@ -196,7 +196,7 @@ router
    *         description: Invalid user
    */
 
-  .put(isAuthenticated, validate(userSchema.update), userCtrl.update)
+  .put(isAuthenticated, userCtrl.update)
 
   /**
    * @swagger
@@ -236,7 +236,7 @@ router
   .post(isAuthenticated, validate(userSchema.makeRequest), userCtrl.makeRequest);
 
 router.route('/:id/handleRequest/:transaction_id').get(isAuthenticated, userCtrl.handleRequest);
-router.route('/:user_id/transactionHistory').get(isAuthenticated, userCtrl.transactioHistory);
+router.route('/:user_id/history').get(isAuthenticated, userCtrl.history);
 
 // router.route('/history1').get(userCtrl.transactioHistory1);
 
