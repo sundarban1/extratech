@@ -43,7 +43,8 @@ export function login(req, res) {
           res.json({
             success: true,
             token,
-            email: user.get('email'),
+            // email: user.get('email'),
+            id: user.get('id'),
           });
         } else if ('status' !== 1) {
           res.status(404).json({

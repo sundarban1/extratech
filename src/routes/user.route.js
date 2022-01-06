@@ -225,6 +225,8 @@ router
 
   .delete(isAuthenticated, userCtrl.destroy);
 
+router.route('/:user_id/requests').get(isAuthenticated, res.json({ name: 'ramesh' }));
+
 router.route('/addBank').post(isAuthenticated, validate(userSchema.addBank), userCtrl.addBank);
 
 router
@@ -236,9 +238,8 @@ router
   .post(isAuthenticated, validate(userSchema.makeRequest), userCtrl.makeRequest);
 
 router.route('/:id/handleRequest/:transaction_id').get(isAuthenticated, userCtrl.handleRequest);
-router.route('/:user_id/history').get(isAuthenticated, userCtrl.history);
 
-// router.route('/history1').get(userCtrl.transactioHistory1);
+router.route('/:user_id/history').get(isAuthenticated, userCtrl.history);
 
 router.route('/:user_id/topUp').post(isAuthenticated, validate(userSchema.topUp), userCtrl.topUP);
 

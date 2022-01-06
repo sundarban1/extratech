@@ -20,6 +20,10 @@ export function getHistory() {
   return TransactionHitory.forge().fetchAll();
 }
 
+export function getRequests() {
+  return Transaction.forge().fetchAll();
+}
+
 /**
  * Get a user.
  *

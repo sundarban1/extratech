@@ -7,8 +7,8 @@ import * as CustomerService from '../services/customer.service';
 import User from '../models/user.model';
 import Transaction from '../models/transaction.model';
 import UserBank from '../models/user_bank.model';
+import Bank from '../models/bank.model';
 import multer from 'multer';
-import { compareSync } from 'bcrypt';
 
 /**
  * Find all the users
@@ -87,6 +87,14 @@ export function store(req, res, next) {
 export function history(req, res, next) {
   userService
     .getHistory()
+    .then((data) => res.json({ data }))
+    .catch((err) => next(err));
+}
+export function request(req, res, next) {
+  res.json({ name: 'ramesh' });
+
+  userService
+    .getRequests()
     .then((data) => res.json({ data }))
     .catch((err) => next(err));
 }
@@ -331,13 +339,16 @@ export function topUP(req, res, next) {
   const bank_id = req.body.bank_id;
   const sent_balance = req.body.balance;
   const user_id = req.params.user_id;
+  const bank_number = 5;
 
   try {
     UserBank.query({ where: { bank_id: bank_id, user_id: user_id } })
       .fetch({ require: false })
       .then((data) => {
         var balance = parseFloat(data.get('balance'));
-        if (balance < sent_balance) {
+        if (bank_id > bank_number) {
+          res.status(422).json({ error: 'The bank you are trying to topUp from does not exits.' });
+        } else if (balance < sent_balance) {
           res.status(422).json({ error: 'You have insufficient balance to top up.' });
         } else {
           UserBank.query({ where: { bank_id: bank_id, user_id: user_id } })
@@ -350,7 +361,7 @@ export function topUP(req, res, next) {
             });
           userService.increaseUserAmount(req.body, req.params);
 
-          res.status(422).json({ success: 'The top up is successful.' });
+          res.status(200).json({ success: 'The top up is successful.' });
         }
       });
   } catch (error) {
