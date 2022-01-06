@@ -1,8 +1,8 @@
 import HttpStatus from 'http-status-codes';
 
 import * as CustomerService from '../services/customer.service';
-import {notify} from '../config/mailer';
-import Address from "../models/address.model";
+import { notify } from '../config/mailer';
+import Address from '../models/address.model';
 
 /**
  * Find all the customers
@@ -26,15 +26,12 @@ export function findAll(req, res, next) {
  */
 export function findById(req, res, next) {
   CustomerService.getCustomer(req.params.id)
-    .then((data) =>
-      {
-        Address.getAddressById(data.attributes.id)
-          .then(customer=>{
-               data.attributes.address = customer;
-               res.json({data});
-          });
-      }
-    )
+    .then((data) => {
+      Address.getAddressById(data.attributes.id).then((customer) => {
+        data.attributes.address = customer;
+        res.json({ data });
+      });
+    })
     .catch((err) => next(err));
 }
 
@@ -46,31 +43,30 @@ export function findById(req, res, next) {
  * @param {Function} next
  */
 export function store(req, res, next) {
-
   CustomerService.getCustomerByEmail(req.body.email)
-    .then(user => {
+    .then((user) => {
       if (user !== null) {
-        res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({ 'error':true, message: req.body.email + ' already exist.' });
+        res
+          .status(HttpStatus.UNPROCESSABLE_ENTITY)
+          .json({ error: true, message: req.body.email + ' already exist.' });
       } else {
-        CustomerService.getCustomerByPhone(req.body.phone)
-          .then(user => {
-            if (user !== null) {
-              res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({ 'error':true, message: req.body.phone + ' already exist.' });
-            } else {
-              CustomerService
-                .storeCustomer(req.body)
-                .then(data => {
+        CustomerService.getCustomerByPhone(req.body.phone).then((user) => {
+          if (user !== null) {
+            res
+              .status(HttpStatus.UNPROCESSABLE_ENTITY)
+              .json({ error: true, message: req.body.phone + ' already exist.' });
+          } else {
+            CustomerService.storeCustomer(req.body).then((data) => {
+              const param = data.attributes;
+              param.template = 'welcome';
+              param.confirmationUrl = CustomerService.generateConfirmationUrl(param.remember_token);
 
-                  const param = data.attributes;
-                  param.template = 'welcome';
-                  param.confirmationUrl = CustomerService.generateConfirmationUrl(param.remember_token);
+              notify(param);
 
-                  notify(param);
-
-                  res.status(HttpStatus.CREATED).json({ data });
-                });
-            }
-          });
+              res.status(HttpStatus.CREATED).json({ data });
+            });
+          }
+        });
       }
     })
     .catch((err) => next(err));

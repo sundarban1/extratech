@@ -3,14 +3,16 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 import Customer from '../models/customer.model';
+import User from '../models/user.model';
+
 import logger from '../config/winston';
 import * as CustomerService from '../services/customer.service';
-import path from "path";
-import Constant from "../utils/constants";
+import * as UserService from '../services/user.service';
+import path from 'path';
+import Constant from '../utils/constants';
 import exp from 'constants';
 import User from '../models/user.model';
 import { exit } from 'process';
-
 
 /**
  * Returns jwt token if valid email and password is provided
@@ -22,6 +24,7 @@ import { exit } from 'process';
 export function login(req, res) {
 
   const { email, password } = req.body;
+<<<<<<< HEAD
 
   User.query({ where: { email: email } })
     .fetch({ require: true })
@@ -35,15 +38,42 @@ export function login(req, res) {
           },
           process.env.TOKEN_SECRET_KEY
         );
+=======
+  try {
+    User.query({ where: { email: email } })
+      .fetch({ require: true })
+      .then((user) => {
+        console.log(user);
+        if (
+          bcrypt.compareSync(password, user.get('password')) &&
+          // user.get('is_verified') === 1 &&
+          // user.get('status') === Constant.users.status.active
+          user.get('status') == 1
+        ) {
+          const token = jwt.sign(
+            {
+              id: user.get('id'),
+              email: user.get('email'),
+            },
+            process.env.TOKEN_SECRET_KEY
+          );
+>>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
 
-        res.json({
-          success: true,
-          token,
-          email: user.get('email'),
-        });
-      } else {
-        logger.log('error', 'Authentication failed. Invalid password.');
+          res.json({
+            success: true,
+            token,
+            // email: user.get('email'),
+            id: user.get('id'),
+          });
+        } else if ('status' !== 1) {
+          res.status(404).json({
+            success: false,
+            message: 'User is not activated or User is not varified',
+          });
+        } else {
+          logger.log('error', 'Authentication failed. Invalid password.');
 
+<<<<<<< HEAD
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           message: 'Invalid username or password.',
@@ -54,8 +84,23 @@ export function login(req, res) {
       res.status(404).json({
         success: false,
         message: 'User not found.',
+=======
+          res.status(HttpStatus.UNAUTHORIZED).json({
+            success: false,
+            message: 'Invalid username or password.',
+          });
+        }
+>>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
       })
-    );
+      .catch(User.NotFoundError, () =>
+        res.status(404).json({
+          success: false,
+          message: 'User not found.',
+        })
+      );
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 /**
@@ -66,10 +111,10 @@ export function login(req, res) {
  * @returns {*}
  */
 
-export function accountConfirmation(req,res,next){
+export function accountConfirmation(req, res, next) {
   const { token } = req.query;
 
-  CustomerService.verifyAccount(token)
+  UserService.verifyAccount(token)
     .then((data) => {
       if (undefined === data) {
         res.sendFile(path.join(__dirname, '../../public/customer/link_expired.html'));
@@ -78,5 +123,4 @@ export function accountConfirmation(req,res,next){
       }
     })
     .catch((err) => console.log(err));
-
 }

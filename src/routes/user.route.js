@@ -3,6 +3,8 @@ import * as userCtrl from '../controllers/user.controller';
 import isAuthenticated from '../middlewares/authenticate';
 import validate from '../config/joi.validate';
 import userSchema from '../validators/user.validator';
+import * as imagevalidator from '../imageValidator/user.image';
+// import multer from 'multer';
 
 const router = express.Router();
 
@@ -98,7 +100,6 @@ router
    */
 
   .post(validate(userSchema.store), userCtrl.store)
-  
 
   /**
    * @swagger
@@ -122,7 +123,7 @@ router
    *            type: object
    */
 
-  .get(isAuthenticated, userCtrl.findAll);
+  .get(userCtrl.findAll);
 
 router
   .route('/:id')
@@ -195,7 +196,7 @@ router
    *         description: Invalid user
    */
 
-  .put(isAuthenticated, validate(userSchema.update), userCtrl.update)
+  .put(isAuthenticated, userCtrl.update)
 
   /**
    * @swagger
@@ -224,7 +225,24 @@ router
 
   .delete(isAuthenticated, userCtrl.destroy);
 
-  
+router.route('/:user_id/requests').get(isAuthenticated, res.json({ name: 'ramesh' }));
 
+router.route('/addBank').post(isAuthenticated, validate(userSchema.addBank), userCtrl.addBank);
+
+router
+  .route('/:sender_id/transaction/:receiver_id')
+  .post(isAuthenticated, validate(userSchema.transaction), userCtrl.transaction);
+
+router
+  .route('/:receiver_id/makeRequest/:sender_id')
+  .post(isAuthenticated, validate(userSchema.makeRequest), userCtrl.makeRequest);
+
+router.route('/:id/handleRequest/:transaction_id').get(isAuthenticated, userCtrl.handleRequest);
+
+router.route('/:user_id/history').get(isAuthenticated, userCtrl.history);
+
+router.route('/:user_id/topUp').post(isAuthenticated, validate(userSchema.topUp), userCtrl.topUP);
+
+router.route('/:user_id/profilePicture').post(isAuthenticated, userCtrl.profilePicture);
 
 export default router;
