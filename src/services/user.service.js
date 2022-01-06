@@ -76,19 +76,9 @@ export function storeUser(user) {
     email,
     password,
     phone,
-<<<<<<< HEAD
-    address
-  }).save()
-  .catch(function(err){
-    if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
-      throw Boom.badRequest(err.sqlMessage)
-    }
-  });
-=======
     address,
     token,
   }).save();
->>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
 }
 
 export function addBank(bank, token) {
@@ -117,21 +107,6 @@ export function addBank(bank, token) {
  */
 export function updateUser(id, user) {
   // eslint-disable-next-line camelcase
-<<<<<<< HEAD
-  const { first_name, middle_name, last_name, email, phone, address} = user;
-
-  return new User({ id })
-    .save({
-      first_name,
-      middle_name,
-      last_name,
-      email,
-      phone,
-      address
-    })
-    .catch(User.NoRowsUpdatedError, () => {
-      throw Boom.notFound('User not found.');
-=======
   const { first_name, last_name, email, status, phone, password, dob, address } = user;
   try {
     return new User({ id })
@@ -211,7 +186,6 @@ export function reduceSenderAmount(transaction_id, user_id) {
             });
           }
         });
->>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
     });
 }
 
@@ -277,10 +251,6 @@ export function deleteUser(id) {
     });
 }
 
-<<<<<<< HEAD
-
-//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJyYW1lc0BnbWFpbC5jb20iLCJpYXQiOjE2MzM1OTQ5OTl9.EqsGnTn7z8JMyfEC8hqifzJ3F-K-5JKAX0RqpbPWq9s
-=======
 export function verifyAccount(token) {
   return new User({ token: token })
     .fetch({ require: false })
@@ -301,4 +271,3 @@ export function verifyAccount(token) {
       throw Boom.notFound('User not found.');
     });
 }
->>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a

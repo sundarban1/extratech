@@ -1,10 +1,7 @@
 import HttpStatus from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-
 import Customer from '../models/customer.model';
-import User from '../models/user.model';
-
 import logger from '../config/winston';
 import * as CustomerService from '../services/customer.service';
 import * as UserService from '../services/user.service';
@@ -24,21 +21,6 @@ import { exit } from 'process';
 export function login(req, res) {
 
   const { email, password } = req.body;
-<<<<<<< HEAD
-
-  User.query({ where: { email: email } })
-    .fetch({ require: true })
-    .then((user) => {
-
-      if (bcrypt.compareSync(password, user.get('password')) ) {
-        const token = jwt.sign(
-          {
-            id: user.get('id'),
-            email: user.get('email'),
-          },
-          process.env.TOKEN_SECRET_KEY
-        );
-=======
   try {
     User.query({ where: { email: email } })
       .fetch({ require: true })
@@ -57,7 +39,6 @@ export function login(req, res) {
             },
             process.env.TOKEN_SECRET_KEY
           );
->>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
 
           res.json({
             success: true,
@@ -73,24 +54,11 @@ export function login(req, res) {
         } else {
           logger.log('error', 'Authentication failed. Invalid password.');
 
-<<<<<<< HEAD
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: 'Invalid username or password.',
-        });
-      }
-    })
-    .catch(Customer.NotFoundError, () =>
-      res.status(404).json({
-        success: false,
-        message: 'User not found.',
-=======
           res.status(HttpStatus.UNAUTHORIZED).json({
             success: false,
             message: 'Invalid username or password.',
           });
         }
->>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
       })
       .catch(User.NotFoundError, () =>
         res.status(404).json({
