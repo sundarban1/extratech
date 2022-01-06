@@ -50,10 +50,6 @@ export function findById(req, res, next) {
  * @param {Function} next
  */
 export function store(req, res, next) {
-<<<<<<< HEAD
- try {
-
-=======
   try {
     userService.getUserByEmail(req.body.email).then((user) => {
       if (user !== null) {
@@ -89,7 +85,6 @@ export function store(req, res, next) {
 
 //History
 export function history(req, res, next) {
->>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
   userService
     .getHistory()
     .then((data) => res.json({ data }))
@@ -398,16 +393,6 @@ export function accountConfirmation(req, res, next) {
  * @param {Function} next
  */
 export function update(req, res, next) {
-<<<<<<< HEAD
-
-  try {
-  userService
-    .updateUser(req.params.id, req.body)
-    .then((data) => res.json({ data }))
-    .catch((err) => next(err));
-  }catch(error){
-    console.log(error);
-=======
   try {
     userService
       .updateUser(req.params.id, req.body)
@@ -415,7 +400,6 @@ export function update(req, res, next) {
       .catch((err) => next(err));
   } catch (err) {
     console.log(err, 'err');
->>>>>>> 77ca3f0e7f3db4ffdb84193b70a008dcb948596a
   }
 }
 
