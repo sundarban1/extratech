@@ -225,9 +225,9 @@ router
 
   .delete(isAuthenticated, userCtrl.destroy);
 
-router.route('/:user_id/requests').get(isAuthenticated, res.json({ name: 'ramesh' }));
-
 router.route('/addBank').post(isAuthenticated, validate(userSchema.addBank), userCtrl.addBank);
+
+router.route('/:user_id/requests').get(isAuthenticated, userCtrl.request);
 
 router
   .route('/:sender_id/transaction/:receiver_id')

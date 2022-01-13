@@ -11,7 +11,7 @@ export default {
     address: Joi.string(),
     dob: Joi.string().required(),
   }),
-  
+
   addBank: Joi.object({
     bank_id: Joi.string().required(),
     bsb: Joi.string().min(6).max(6).required(),
@@ -19,7 +19,6 @@ export default {
     balance: Joi.string().required(),
   }),
   transaction: Joi.object({
-    bank_id: Joi.string().required(),
     amount: Joi.string().required(),
   }),
   makeRequest: Joi.object({

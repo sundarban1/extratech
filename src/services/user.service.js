@@ -20,8 +20,8 @@ export function getHistory() {
   return TransactionHitory.forge().fetchAll();
 }
 
-export function getRequests() {
-  return Transaction.forge().fetchAll();
+export function getRequests(id) {
+  return Transaction.forge().where({ sender_id: id, status: 'pending' }).fetchAll();
 }
 
 /**
@@ -142,18 +142,14 @@ export function increaseReceiverAmount(transaction_id) {
   Transaction.query({ where: { id: transaction_id } })
     .fetch({ require: false })
     .then((data) => {
-      // const user_id = data.get('sender_id');
       const req_amount = parseFloat(data.get('amount'));
       const receiver_id = data.get('receiver_id');
-      //req 1, send 2
 
       return User.query({ where: { id: receiver_id } })
         .fetch({ require: false })
         .then((data) => {
           const balance = parseFloat(data.get('amount'));
           const total_receive = parseFloat(data.get('total_recieve'));
-
-          // balance = balance + req_amount;
           return new User({ id: receiver_id }).save({
             amount: balance + req_amount,
             total_recieve: total_receive + req_amount,
@@ -175,11 +171,12 @@ export function reduceSenderAmount(transaction_id, user_id) {
         .fetch({ require: false })
         .then((data) => {
           const balance = parseFloat(data.get('amount'));
+          console.log('balance: ', balance);
+          console.log('Request Amount: ', req_amount);
           const total_sent = parseFloat(data.get('total_sent'));
           if (balance < req_amount) {
             return false;
           } else {
-            // balance = balance - req_amount;
             return new User({ id: sender_id }).save({
               amount: balance - req_amount,
               total_sent: total_sent + req_amount,

@@ -91,10 +91,9 @@ export function history(req, res, next) {
     .catch((err) => next(err));
 }
 export function request(req, res, next) {
-  res.json({ name: 'ramesh' });
-
+  const id = req.params.user_id;
   userService
-    .getRequests()
+    .getRequests(id)
     .then((data) => res.json({ data }))
     .catch((err) => next(err));
 }
@@ -137,50 +136,57 @@ export function transactioHistory(req, res, next) {
 }
 
 export function handleRequest(req, res, next) {
-  // res.json({ name: 'ramesh' });
   const user_id = req.params.id;
   const transaction_id = req.params.transaction_id;
   const status = req.query.status;
 
-  try {
-    Transaction.query({ where: { id: transaction_id } })
-      .fetch({ require: true })
-      .then((data) => {
-        const transaction_status = data.get('status');
-        if (transaction_status != 'pending') {
-          res.status(422).json({ error: 'Your transaction is already completed' });
-        } else {
-          if (status == 'accept') {
-            var response = userService.reduceSenderAmount(transaction_id, user_id);
+  if (status != 'accept' && status != 'cancel') {
+    res.status(422).json({ error: 'Invalid status type.' });
+  } else {
+    try {
+      Transaction.query({ where: { id: transaction_id } })
+        .fetch({ require: true })
+        .then((data) => {
+          const transaction_status = data.get('status');
+          if (transaction_status == 'pending') {
+            if (status == 'accept') {
+              var response = userService.reduceSenderAmount(transaction_id, user_id);
 
-            if (!response) {
-              res
-                .status(422)
-                .json({ error: 'you do not have enough balance to make the transaction.' });
+              if (response == false) {
+                res
+                  .status(422)
+                  .json({ error: 'you do not have enough balance to make the transaction.' });
+              } else {
+                userService.increaseReceiverAmount(transaction_id);
+
+                //Change the status of transaction from pending to Complete
+                return new Transaction({ id: transaction_id })
+                  .save({
+                    status: 'complete',
+                  })
+                  .then((data) => {
+                    res.status(200).json({ success: 'Your transaction was successful.' });
+                  });
+              }
+
+              //
             } else {
-              userService.increaseReceiverAmount(transaction_id);
-
-              //Change the status of transaction from pending to Complete
+              //If the user cancel the Transaction then set the  Transaction Status in the Transaction table to Cancel.
               return new Transaction({ id: transaction_id })
                 .save({
-                  status: 'Complete',
+                  status: 'cancel',
                 })
                 .then((data) => {
-                  res.status(200).json({ success: 'Your transaction was successful.' });
+                  res.status(200).json({ success: 'The request is successfully Cancelled.' });
                 });
             }
-
-            //
           } else {
-            //If the user cancel the Transaction then set the Status in the Transaction table to Cancel.
-            return new Transaction({ id: transaction_id }).save({
-              status: 'cancel',
-            });
+            res.status(200).json({ error: 'You do not have Any pending Requests' });
           }
-        }
-      });
-  } catch (error) {
-    console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
