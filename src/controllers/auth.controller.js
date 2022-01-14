@@ -1,16 +1,15 @@
 import HttpStatus from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-
 import Customer from '../models/customer.model';
-import User from '../models/user.model';
-
 import logger from '../config/winston';
 import * as CustomerService from '../services/customer.service';
 import * as UserService from '../services/user.service';
 import path from 'path';
 import Constant from '../utils/constants';
 import exp from 'constants';
+import User from '../models/user.model';
+import { exit } from 'process';
 
 /**
  * Returns jwt token if valid email and password is provided
@@ -20,6 +19,7 @@ import exp from 'constants';
  * @returns {*}
  */
 export function login(req, res) {
+
   const { email, password } = req.body;
   try {
     User.query({ where: { email: email } })
